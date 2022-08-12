@@ -12,7 +12,7 @@ reddit = praw.Reddit(
 
 subreddit = reddit.subreddit("all")
 
-webhook = DiscordWebhook(url='https://discord.com/api/webhooks/942629708540047421/kpxjHcPjNTuDqqCkv7FrZKrR2mCUwt6F-4IR9maUHLP1eUirxDuIHDMg2qhmxEOXGgLQ')
+webhook = DiscordWebhook(url='https://discord.com/api/webhooks/942629708540047421/uhwfiavmiahwhv-@@@@@@@@@@@@@@@@@@')
 
 keyword = "hello"
 
