@@ -2,6 +2,7 @@ import os
 import praw
 from discord_webhook import DiscordWebhook, DiscordEmbed
 
+
 reddit = praw.Reddit(
   password = os.environ['password'],
   username = os.environ['username'],
@@ -11,10 +12,8 @@ reddit = praw.Reddit(
 )
 
 subreddit = reddit.subreddit("all")
-
-webhook = DiscordWebhook(url='https://discord.com/api/webhooks/942629708540047421/uhwfiavmiahwhv-@@@@@@@@@@@@@@@@@@')
-
-keyword = "hello"
+webhook = DiscordWebhook(url=os.environ['webhook_url'])
+keyword = os.environ['keyword']
 
 for comment in subreddit.stream.comments(skip_existing=True):
   comment_lower = comment.body.lower()
