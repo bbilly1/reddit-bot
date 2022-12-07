@@ -4,7 +4,7 @@ services:
   redditbot:
     container_name: redditbot
     restart: unless-stopped
-    build: ./
+    image: bbilly1/redditbot
     volumes:
       - ./volume/redditbot/data:/data
     env_file:
