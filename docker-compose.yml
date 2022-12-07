@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  redditbot:
+    container_name: redditbot
+    restart: unless-stopped
+    build: ./
+    volumes:
+      - ./volume/redditbot/data:/data
+    env_file:
+      - ./env/redditbot.env

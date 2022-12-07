@@ -1,2 +1,3 @@
-praw==7.6.0
-discord-webhook==0.16.3
+beautifulsoup4
+requests
+ipython

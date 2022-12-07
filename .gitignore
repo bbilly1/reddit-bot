@@ -1,0 +1,9 @@
+# env
+redditbot.env
+
+# dev
+__pycache__
+.vscode/
+
+# local db
+history.db
