@@ -14,6 +14,7 @@ function sync_docker() {
     printf "\ncreate new version:\n"
     read -r VERSION
 
+    sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
     sudo docker buildx build \
         --platform linux/amd64,linux/arm64 \
         -t bbilly1/redditbot \
