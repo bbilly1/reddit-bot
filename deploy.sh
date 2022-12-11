@@ -1,6 +1,8 @@
 #!/bin/bash
 # deploy to docker and local
 
+remote_host="vps3"
+
 function sync_docker() {
 
     if [[ $(systemctl is-active docker) != 'active' ]]; then
@@ -28,10 +30,42 @@ function sync_docker() {
 
 }
 
+
+function sync_unstable() {
+    # copy project files to build image
+    rsync -a --progress --delete-after \
+        --exclude ".git" \
+        --exclude ".gitignore" \
+        --exclude ".vscode" \
+        --exclude "env/" \
+        --exclude "volume/" \
+        --exclude "**/__pycache__/" \
+        . -e ssh "$remote_host":redditbot
+    
+    ssh "$remote_host" 'docker build -t bbilly1/redditbot redditbot'
+    ssh "$remote_host" 'docker compose -f docker/docker-compose.yml up -d'
+}
+
+
+function sync_testing() {
+
+    if [[ $(systemctl is-active docker) != 'active' ]]; then
+        echo "starting docker"
+        sudo systemctl start docker
+    fi
+
+    sudo docker build -t bbilly1/redditbot .
+    sudo docker compose up -d
+
+}
+
+
 if [[ $1 == "docker" ]]; then
     sync_docker
+elif [[ $1 == "test" ]]; then
+    sync_testing
 else
-    echo "valid options are: docker"
+    echo "valid options are: test | docker"
 fi
 
 ##
