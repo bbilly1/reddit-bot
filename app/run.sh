@@ -4,7 +4,7 @@
 printf "===============\n run redditbot\n===============\n"
 
 while true; do
-    echo "[exec]: run now"
+    echo "[exec]: start now $(date)"
     python main.py
     echo "[exec]: run completed"
     sleep 3600
