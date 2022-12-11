@@ -19,17 +19,22 @@ class CommentSearchScraper(Reddit):
 
     def get_new(self):
         """get new comments"""
-        url = self.build_url()
-        html = self.make_request(url)
-        self.parse_raw_comments(html.text)
-        self.send_notifications()
+        urls = self.build_urls()
 
-    def build_url(self):
-        """build url to scrape"""
-        query_encoded = self.build_keywords()
-        url = f"{self.BASE}/search/?q={query_encoded}&type=comment&sort=new"
+        for url in urls:
+            html = self.make_request(url)
+            self.parse_raw_comments(html.text)
+            self.send_notifications()
+            sleep(5)
 
-        return url
+    def build_urls(self):
+        """build urls for all keywords to scrape"""
+        urls = []
+        for keyword in self.build_keywords():
+            url = f"{self.BASE}/search/?q={keyword}&type=comment&sort=new"
+            urls.append(url)
+
+        return urls
 
     def parse_raw_comments(self, text):
         """extract raw comments from text"""
@@ -181,18 +186,23 @@ class ReditPost(Reddit):
         self.new_posts = False
 
     def get_new(self):
-        """get new posts from reddit"""
-        url = self.build_url()
-        response = self.make_request(url)
-        self.parse_posts(response)
-        self.send_notifications()
+        """get new comments"""
+        urls = self.build_urls()
 
-    def build_url(self):
-        """return url"""
-        query_encoded = self.build_keywords()
-        url = f"{self.BASE}/search.json?q={query_encoded}&type=link&sort=new"
+        for url in urls:
+            response = self.make_request(url)
+            self.parse_posts(response)
+            self.send_notifications()
+            sleep(5)
 
-        return url
+    def build_urls(self):
+        """build urls for all keywords to scrape"""
+        urls = []
+        for keyword in self.build_keywords():
+            url = f"{self.BASE}/search.json?q={keyword}&type=link&sort=new"
+            urls.append(url)
+
+        return urls
 
     def parse_posts(self, response):
         """add new posts"""

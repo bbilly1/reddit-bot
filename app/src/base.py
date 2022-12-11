@@ -18,22 +18,17 @@ class Reddit:
     def build_keywords(self):
         """get keywords from environ"""
         keywords = environ.get("KEYWORDS")
-        keywords_clean = ""
+        keywords_encoded = []
 
         for keyword in keywords.split(","):
             keyword = keyword.strip()
             if len(keyword.split()) > 1:
                 keyword = f"\"{keyword}\""
 
-            if not keywords_clean:
-                keywords_clean = keyword
-            else:
-                keywords_clean += f" OR {keyword}"
+            query_encoded = urllib.parse.quote(keyword)
+            keywords_encoded.append(query_encoded)
 
-
-        query_encoded = urllib.parse.quote(keywords_clean)
-
-        return query_encoded
+        return keywords_encoded
 
     def parse_utc_timestamp(self, utc):
         """return utc text"""
