@@ -1,6 +1,7 @@
 FROM python:3.10.8-slim-bullseye
 
 ENV PYTHONUNBUFFERED 1
+ENV PATH=/root/.local/bin:$PATH
 
 # install requirements
 COPY requirements.txt /requirements.txt
