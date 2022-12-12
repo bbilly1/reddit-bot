@@ -62,10 +62,12 @@ function sync_testing() {
 
 if [[ $1 == "docker" ]]; then
     sync_docker
+elif [[ $1 == "unstable" ]]; then
+    sync_unstable
 elif [[ $1 == "test" ]]; then
     sync_testing
 else
-    echo "valid options are: test | docker"
+    echo "valid options are: test | docker | unstable"
 fi
 
 ##
