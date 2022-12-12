@@ -97,12 +97,14 @@ class CommentSearchScraper(Reddit):
         """send notifications new comments"""
         for comment in self.new_comments:
             link = comment["comment_link"]
-            if self.first_setup and comment == self.new_comments[0]:
-                print(f"[comment][notify]: {link}")
-                Discord(comment).send_hook()
-
-            self.insert_into(self.DB_TABLE, comment)
             print(f"[comment][archive]: {link}")
+            self.insert_into(self.DB_TABLE, comment)
+
+            if self.first_setup and comment != self.new_comments[0]:
+                continue
+
+            print(f"[comment][notify]: {link}")
+            Discord(comment).send_hook()
 
         if not self.new_comments:
             print("[comment] no new mentions found")
@@ -165,15 +167,17 @@ class SubReddit(Reddit):
         """send notifications new comments"""
         for comment in self.new_comments:
             link = comment["comment_link"]
-            if self.first_setup and comment == self.new_comments[0]:
-                print(f"[comment][notify]: {link}")
-                Discord(comment).send_hook()
-
-            self.insert_into(self.DB_TABLE, comment)
             print(f"[comment][archive]: {link}")
+            self.insert_into(self.DB_TABLE, comment)
+
+            if self.first_setup and comment != self.new_comments[0]:
+                continue
+
+            print(f"[comment][notify]: {link}")
+            Discord(comment).send_hook()
 
         if not self.new_comments:
-            print("[comment] no new items in subreddit found")
+            print("[comment] no new mentions found")
 
 
 class ReditPost(Reddit):
@@ -242,12 +246,14 @@ class ReditPost(Reddit):
         """send notifications new comments"""
         for post in self.new_posts:
             link = post["post_link"]
-            if self.first_setup and post == self.new_posts[0]:
-                print(f"[post][notify]: {link}")
-                Discord(post).send_hook()
-
-            self.insert_into(self.DB_TABLE, post)
             print(f"[post][archive]: {link}")
+            self.insert_into(self.DB_TABLE, post)
+
+            if self.first_setup and post != self.new_posts[0]:
+                continue
+
+            print(f"[post][notify]: {link}")
+            Discord(post).send_hook()
 
         if not self.new_posts:
             print("[post] no new mentions found")
