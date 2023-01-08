@@ -45,7 +45,13 @@ class CommentSearchScraper(Reddit):
 
         for comment in all_comments:
             author = comment.find("a", {"data-testid": "comment_author_icon"})
-            author_name = author.get("href").strip("/").split("/")[1]
+            if author:
+                author_name = author.get("href").strip("/").split("/")[1]
+                author_link = self.BASE + author.get("href")
+            else:
+                author_name = "[deleted]"
+                author_link = False
+
             if author_name == "AutoModerator":
                 continue
 
@@ -65,7 +71,7 @@ class CommentSearchScraper(Reddit):
 
             self.new_comments.append(
                 {
-                    "author_link": self.BASE + author.get("href"),
+                    "author_link": author_link,
                     "author_name": author_name,
                     "post_title": post.text,
                     "post_link": self.BASE + post.get("href"),

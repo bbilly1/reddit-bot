@@ -95,10 +95,7 @@ class Discord:
         hook_data = {
             "embeds": [
                 {
-                    "author": {
-                        "name": self.data["author_name"],
-                        "url": self.data["author_link"],
-                    },
+                    "author": self._build_author(),
                     "title": self._parse_title(),
                     "url": self._build_url(),
                     "description": self._build_desc(),
@@ -109,6 +106,16 @@ class Discord:
         }
 
         return hook_data
+
+    def _build_author(self):
+        """build author object from data"""
+        author = {
+            "name": self.data["author_name"]
+        }
+        if self.data["author_link"]:
+            author.update({"url": self.data["author_link"]})
+
+        return author
 
     def _parse_title(self):
         """build title"""
