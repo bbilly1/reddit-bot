@@ -37,6 +37,7 @@ function sync_unstable() {
         --exclude ".git" \
         --exclude ".gitignore" \
         --exclude ".vscode" \
+        --exclude ".mypy_cache" \
         --exclude "env/" \
         --exclude "volume/" \
         --exclude "**/__pycache__/" \
