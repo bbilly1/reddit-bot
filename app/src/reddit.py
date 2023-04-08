@@ -140,6 +140,9 @@ class SubReddit(Reddit):
 
         for comment in all_comments:
             author_name: str = comment["data"]["author"]
+            if author_name == "AutoModerator":
+                continue
+
             comment_link: str = self.BASE + comment["data"]["permalink"]
 
             if self.link_is_notified(comment_link):
