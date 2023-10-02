@@ -1,4 +1,4 @@
-FROM python:3.10.10-slim-bullseye
+FROM python:3.11.3-slim-bullseye
 
 ENV PYTHONUNBUFFERED 1
 ENV PATH=/root/.local/bin:$PATH
