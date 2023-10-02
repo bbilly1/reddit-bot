@@ -102,6 +102,9 @@ class CommentSearchScraper(Reddit):
         """send notifications new comments"""
         for comment in self.new_comments:
             link: str = comment["comment_link"]
+            if self.link_is_notified(link):
+                continue
+
             print(f"[comment][archive]: {link}")
             self.insert_into(self.DB_TABLE, comment)
 
