@@ -35,6 +35,7 @@ function sync_unstable() {
     # copy project files to build image
     rsync -a --progress --delete-after \
         --exclude ".git" \
+        --exclude ".venv" \
         --exclude ".gitignore" \
         --exclude ".vscode" \
         --exclude ".mypy_cache" \
