@@ -2,11 +2,10 @@
 
 import re
 from datetime import datetime
-from time import sleep
 from os import environ
+from time import sleep
 
 from bs4 import BeautifulSoup
-
 from requests import Response
 from src.base import Discord, Reddit
 from src.static_types import RedditComment, RedditPost

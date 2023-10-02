@@ -16,8 +16,8 @@ function sync_docker() {
     printf "\ncreate new version:\n"
     read -r VERSION
 
-    sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
-    sudo docker buildx build \
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+    docker buildx build \
         --platform linux/amd64,linux/arm64 \
         -t bbilly1/redditbot \
         -t bbilly1/redditbot:"$VERSION" --push .
@@ -55,8 +55,33 @@ function sync_testing() {
         sudo systemctl start docker
     fi
 
-    sudo docker build -t bbilly1/redditbot .
-    sudo docker compose up -d
+    docker build -t bbilly1/redditbot .
+    docker compose up -d
+
+}
+
+function validate {
+
+    if [[ $1 ]]; then
+        check_path="$1"
+    else
+        check_path="."
+    fi
+
+    echo "run validate on $check_path"
+
+    # note: this logic is duplicated in the `./github/workflows/lint_python.yml` config
+    # if you update this file, you should update that as well
+    echo "running black"
+    black --force-exclude "migrations/*" --diff --color --check -l 120 "$check_path"
+    echo "running codespell"
+    codespell --skip="./.git,./.venv,./.mypy_cache" "$check_path"
+    echo "running flake8"
+    flake8 "$check_path" --exclude "migrations,.venv" --count --max-complexity=10 \
+        --max-line-length=120 --show-source --statistics
+    echo "running isort"
+    isort --skip "migrations" --skip ".venv" --check-only --diff --profile black -l 120 "$check_path"
+    printf "    \n> all validations passed\n"
 
 }
 
@@ -67,8 +92,10 @@ elif [[ $1 == "unstable" ]]; then
     sync_unstable
 elif [[ $1 == "test" ]]; then
     sync_testing
+elif [[ $1 == "validate" ]]; then
+    validate "$2"
 else
-    echo "valid options are: test | docker | unstable"
+    echo "valid options are: test | docker | unstable | validate"
 fi
 
 ##

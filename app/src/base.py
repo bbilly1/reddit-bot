@@ -1,27 +1,23 @@
 """base class for reddit"""
 
-import urllib.parse
 import sqlite3
+import urllib.parse
 from datetime import datetime
 from hashlib import md5
 from os import environ
 from typing import Any
 
 import requests
-from src.static_types import (
-    DiscordAuthor,
-    DiscordEmbed,
-    DiscordHook,
-    RedditComment,
-    RedditPost,
-)
+from src.static_types import DiscordAuthor, DiscordEmbed, DiscordHook, RedditComment, RedditPost
 
 
 class Reddit:
     """base config class"""
 
     BASE: str = "https://www.reddit.com"
-    HEADERS: dict[str, str] = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36'}
+    HEADERS: dict[str, str] = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"  # noqa
+    }
 
     def build_keywords(self) -> list[str]:
         """get keywords from environ"""
@@ -31,7 +27,7 @@ class Reddit:
         for keyword in keywords.split(","):
             keyword_clean: str = keyword.strip()
             if len(keyword_clean.split()) > 1:
-                keyword_clean = f"\"{keyword}\""
+                keyword_clean = f'"{keyword}"'
 
             query_encoded: str = urllib.parse.quote(keyword_clean)
             keywords_encoded.append(query_encoded)
@@ -73,7 +69,7 @@ class Reddit:
                 {key}
             FROM
                 {table}
-            WHERE 
+            WHERE
                 {key} = '{value}';
         """
         db_handler = Database()
@@ -152,16 +148,13 @@ class Discord:
         """build footer"""
         subreddit = self.data.get("subreddit")
         time_stamp = self.data.get("time_stamp_text")
+        footer = {"text": f"{subreddit} | {time_stamp}"}
 
-        return {
-            "text": f"{subreddit} | {time_stamp}"
-        }
+        return footer
 
     def make_request(self, hook_data: DiscordHook) -> None:
         """send hook to discord"""
-        response = requests.post(
-            f"{self.HOOK_URL}?wait=true", json=hook_data, timeout=10
-        )
+        response = requests.post(f"{self.HOOK_URL}?wait=true", json=hook_data, timeout=10)
         if not response.ok:
             print(response.json())
 
@@ -178,12 +171,12 @@ class Database:
     def validate(self) -> bool:
         """make sure expected tables are there"""
         all_tables_query = """
-            SELECT 
+            SELECT
                 name
-            FROM 
+            FROM
                 sqlite_schema
-            WHERE 
-                type ='table' AND 
+            WHERE
+                type ='table' AND
                 name NOT LIKE 'sqlite_%';
         """
         self.execute(all_tables_query)
