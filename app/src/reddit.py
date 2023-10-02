@@ -1,5 +1,7 @@
 """scrape for comments matching keywords"""
 
+import re
+from datetime import datetime
 from time import sleep
 from os import environ
 
@@ -29,144 +31,73 @@ class CommentSearchScraper(Reddit):
             self.send_notifications()
             sleep(5)
 
-    def build_urls(self) -> list:
+    def build_urls(self) -> list[str]:
         """build urls for all keywords to scrape"""
-        urls: list = []
+        urls: list[str] = []
         for keyword in self.build_keywords():
             url: str = f"{self.BASE}/search/?q={keyword}&type=comment&sort=new"
             urls.append(url)
+
+        subreddit = environ.get("SUB_REDDIT")
+        if subreddit:
+            urls.append(f"https://www.reddit.com/{subreddit}/search/?q=&type=comment&sort=new")
 
         return urls
 
     def parse_raw_comments(self, text: str) -> None:
         """extract raw comments from text"""
         soup = BeautifulSoup(text, "html.parser")
-        all_comments = soup.find_all("div", {"data-click-id": "background"})
+        all_comments = soup.find_all("faceplate-tracker", {"data-testid": "search-comment"})
 
         for comment in all_comments:
-            author = comment.find("a", {"data-testid": "comment_author_icon"})
-            if author:
-                author_name: str = author.get("href").strip("/").split("/")[1]
-                author_link: str | bool = self.BASE + author.get("href")
-            else:
-                author_name = "[deleted]"
-                author_link = False
+            comment_parsed = self.parse_comment(comment)
+            if not comment_parsed:
+                return
 
-            if author_name == "AutoModerator":
-                continue
-
-            post = comment.find("a", {"data-click-id": "body"})
-            time_stamp = comment.find(
-                "a", {"data-testid": "comment_timestamp"}
-            )
-            comment_link: str = time_stamp.get("href").split("?")[0]
-            comment_text: str = comment.find("div", {"data-testid": "comment"}).text
-            subreddit: str = "/".join(post.get("href").split("/")[1:3])
-
-            if self.link_is_notified(comment_link):
-                continue
-
-            time_stamp, time_stamp_text = self.get_timestamp(comment_link)
-
-            comment_parsed: RedditComment = {
-                "author_link": author_link,
-                "author_name": author_name,
-                "post_title": post.text,
-                "post_link": self.BASE + post.get("href"),
-                "time_stamp": time_stamp,
-                "time_stamp_text": time_stamp_text,
-                "subreddit": subreddit,
-                "comment_link": comment_link,
-                "comment_text": comment_text,
-            }
             self.new_comments.append(comment_parsed)
-            sleep(1)
 
-    def get_timestamp(self, link: str) -> tuple[int, str]:
-        """get timestamp from API"""
-        api_link = link.rstrip("/") + ".json"
-        response = self.make_request(api_link)
-        utc = response.json()[0]["data"]["children"][0]["data"]["created_utc"]
-        time_stamp, time_stamp_text = self.parse_utc_timestamp(utc)
+    def parse_comment(self, comment) -> RedditComment:
+        """extract comment fields from bs4 object"""
+        author = comment.find("a", href=re.compile("/user/*"))
+        if author:
+            author_name: str = author.text
+            author_link: str | bool = self.BASE + author.get("href")
+        else:
+            author_name = "[deleted]"
+            author_link = False
 
-        return time_stamp, time_stamp_text
+        if author_name == "AutoModerator":
+            return None
+
+        title = comment.find("faceplate-tracker")
+        time_stamp = datetime.fromisoformat(comment.find("faceplate-timeago").get("ts"))
+        time_stamp_text = time_stamp.replace(microsecond=0).isoformat(" ")
+        subreddit = comment.find("faceplate-hovercard").get("aria-label")
+        comment_link = self.BASE + [i for i in comment.find_all("a") if i.text == "Go To Thread"][0].get("href")
+        comment_text = comment.find("span", id=re.compile("comment-content-[0-9]*")).text.strip()
+
+        if self.link_is_notified(comment_link):
+            return None
+
+        comment_parsed: RedditComment = {
+            "author_link": author_link,
+            "author_name": author_name,
+            "post_title": title.text,
+            "post_link": self.BASE + title.find("a").get("href"),
+            "time_stamp": time_stamp,
+            "time_stamp_text": time_stamp_text,
+            "subreddit": subreddit,
+            "comment_link": comment_link,
+            "comment_text": comment_text,
+        }
+
+        return comment_parsed
 
     def link_is_notified(self, comment_link: str) -> bool:
         """check if link was already notified before"""
         exists = self.exists(self.DB_TABLE, "comment_link", comment_link)
 
         return exists
-
-    def send_notifications(self) -> None:
-        """send notifications new comments"""
-        for comment in self.new_comments:
-            link: str = comment["comment_link"]
-            print(f"[comment][archive]: {link}")
-            self.insert_into(self.DB_TABLE, comment)
-
-            if self.first_setup and comment != self.new_comments[0]:
-                continue
-
-            print(f"[comment][notify]: {link}")
-            Discord(comment).send_hook()
-
-        if not self.new_comments:
-            print("[comment] no new mentions found")
-
-
-class SubReddit(Reddit):
-    """get new comments from subreddit comments API"""
-
-    SUB_REDDIT: str | bool = environ.get("SUB_REDDIT", False)
-    DB_TABLE: str = "comments"
-
-    def __init__(self, first_setup: bool = False):
-        self.first_setup: bool = first_setup
-        self.new_comments: list[RedditComment] = []
-
-    def get_new(self) -> None:
-        """get new comments"""
-        if not self.SUB_REDDIT:
-            return
-
-        url: str = f"{self.BASE}/{self.SUB_REDDIT}/comments.json"
-        response: Response = self.make_request(url)
-        self.parse_comments(response)
-        self.send_notifications()
-
-    def parse_comments(self, response) -> None:
-        """build comments list"""
-        all_comments: list = response.json()["data"]["children"]
-
-        for comment in all_comments:
-            author_name: str = comment["data"]["author"]
-            if author_name == "AutoModerator":
-                continue
-
-            comment_link: str = self.BASE + comment["data"]["permalink"]
-
-            if self.link_is_notified(comment_link):
-                continue
-
-            utc: str = comment["data"]["created_utc"]
-            time_stamp, time_stamp_text = self.parse_utc_timestamp(utc)
-            new_comment: RedditComment = {
-                "author_link": f"{self.BASE}/user/{author_name}/",
-                "author_name": author_name,
-                "post_title": comment["data"]["link_title"],
-                "post_link": comment["data"]["link_url"],
-                "time_stamp": time_stamp,
-                "time_stamp_text": time_stamp_text,
-                "subreddit": self.SUB_REDDIT,
-                "comment_link": comment_link,
-                "comment_text": comment["data"]["body"],
-            }
-
-            self.new_comments.append(new_comment)
-
-    def link_is_notified(self, comment_link: str) -> bool:
-        """check if link was already notified before"""
-        return self.exists(self.DB_TABLE, "comment_link", comment_link)
 
     def send_notifications(self) -> None:
         """send notifications new comments"""

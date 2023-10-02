@@ -2,7 +2,7 @@
 """application entry point"""
 
 from src.base import Database
-from src.reddit import CommentSearchScraper, SubReddit, ReditPost
+from src.reddit import CommentSearchScraper, ReditPost
 
 
 def setup_databasse() -> bool:
@@ -17,7 +17,6 @@ def setup_databasse() -> bool:
 def get_new_comments(first_setup: bool) -> None:
     """get new comments from reddit"""
     CommentSearchScraper(first_setup).get_new()
-    SubReddit(first_setup).get_new()
     ReditPost(first_setup).get_new()
 
 
