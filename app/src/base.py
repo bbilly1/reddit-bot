@@ -132,7 +132,7 @@ class Discord:
 
     def _build_desc(self) -> str:
         """build description"""
-        text: str = self.data["comment_text"] or self.data["post_text"]
+        text: str = self.data.get("comment_text") or self.data["post_text"]
         description: str = text[:500].rsplit(" ", 1)[0] + " ..."
 
         return description
