@@ -150,7 +150,7 @@ class ReditPost(Reddit):
         """add new posts"""
 
         for post in response.json()["data"]["children"]:
-            author_name: str = post["data"]["author_fullname"]
+            author_name: str = post["data"]["author"]
             post_link: str = self.BASE + post["data"]["permalink"]
 
             if self.link_is_notified(post_link):
