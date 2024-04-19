@@ -16,7 +16,8 @@ class Reddit:
 
     BASE: str = "https://www.reddit.com"
     HEADERS: dict[str, str] = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"  # noqa
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0",  # noqa
+        "Cookie": "reddit_session=xxxxxxxxxxx",
     }
 
     def build_keywords(self) -> list[str]:
