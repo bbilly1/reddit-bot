@@ -18,6 +18,6 @@ Configure the following environment variables
 - **DISCORD_HOOK**: Hook url to send discord notifications to
 
 ## Run
-At first run, *reddit bot* will pupulate the database with past matches and send one notification of each for testing.  
+At first run, *reddit bot* will populate the database with past matches and send one notification of each for testing.  
 
 After that, the bot will search for new mentions every hour.
