@@ -55,7 +55,7 @@ class CommentSearchScraper(Reddit):
 
             self.new_comments.append(comment_parsed)
 
-    def parse_comment(self, comment) -> RedditComment:
+    def parse_comment(self, comment) -> RedditComment | None:
         """extract comment fields from bs4 object"""
         author = comment.find("a", href=re.compile("/user/*"))
         if author:
