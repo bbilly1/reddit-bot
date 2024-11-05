@@ -16,6 +16,7 @@ Configure the following environment variables
 - **SUB_REDDIT**: Name of the subreddit to monitor, e.g. `r/TubeArchivist`
 - **KEYWORDS**: Comma separated list of minimal one keyword
 - **DISCORD_HOOK**: Hook url to send discord notifications to
+- **REDDIT_SESSION**: Optional, if you are encountering 403 errors, you can pass a valid reddit session cookie string with you requests
 
 ## Run
 At first run, *reddit bot* will populate the database with past matches and send one notification of each for testing.  
