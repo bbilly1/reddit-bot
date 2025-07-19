@@ -2,7 +2,7 @@ services:
   redditbot:
     container_name: redditbot
     restart: unless-stopped
-    image: bbilly1/redditbot
+    image: ghcr.io/bbilly1/reddit-bot
     volumes:
       - ./volume/redditbot/data:/data
     env_file:
