@@ -1,6 +1,15 @@
 #!/usr/bin/env python
 """application entry point"""
 
+try:
+    from dotenv import load_dotenv
+
+    print("load local .env file")
+    load_dotenv(".env")
+except ModuleNotFoundError:
+    pass
+
+
 from src.base import Database
 from src.reddit import CommentSearchScraper, ReditPost
 

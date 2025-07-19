@@ -1,5 +1,6 @@
 # env
 .venv
+app/.env
 redditbot.env
 
 # dev

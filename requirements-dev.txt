@@ -1,4 +1,5 @@
 -r requirements.txt
 ipython==9.4.0
+python-dotenv==1.1.1
 requirementscheck==0.1.0
 types-requests==2.32.4.20250611
