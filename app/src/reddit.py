@@ -51,10 +51,10 @@ class CommentSearchScraper(Reddit):
         for comment in all_comments:
             comment_parsed = self.parse_comment(comment)
             if not comment_parsed:
-                return
+                continue
 
             if self.link_is_notified(comment_parsed["comment_link"]):
-                return
+                continue
 
             self.new_comments.append(comment_parsed)
 
