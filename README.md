@@ -1,5 +1,6 @@
 > [!CAUTION]
-> Image hosting is now only available through ghcr.io. Update your image tag to: `ghcr.io/bbilly1/reddit-bot`.
+> Image hosting is now only available through ghcr.io. Update your image tag to:  
+> `ghcr.io/bbilly1/reddit-bot`.
 
 # Reddit - Discord Bot
 *Monitor Reddit for keywords*
