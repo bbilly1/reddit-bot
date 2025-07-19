@@ -8,7 +8,13 @@ from os import environ
 from typing import Any
 
 import requests
-from src.static_types import DiscordAuthor, DiscordEmbed, DiscordHook, RedditComment, RedditPost
+from src.static_types import (
+    DiscordAuthor,
+    DiscordEmbed,
+    DiscordHook,
+    RedditComment,
+    RedditPost,
+)
 
 
 class Reddit:
