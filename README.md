@@ -1,8 +1,8 @@
+> [!CAUTION]
+> Image hosting is now only available through ghcr.io. Update your image tag to: `ghcr.io/bbilly1/reddit-bot`.
+
 # Reddit - Discord Bot
 *Monitor Reddit for keywords*
-
-> [!CAUTION]
-> Image hosting is now available through ghcr.io. Update your image tag to: `ghcr.io/bbilly1/reddit-bot`.
 
 ## About this project
 There aren't really any plans to further develop this little script. This was a lazy afternoon project automating some specific repetitive task. I open sourced it in the hopes others might find this useful, but don't expect any support or feature developments. If you want to contribute, I'm happy to look at your PR. When in doubt if your idea will be a good fit, reach out first.
