@@ -43,14 +43,17 @@ class CommentSearchScraper(Reddit):
 
         return urls
 
-    def parse_raw_comments(self, text: str) -> None:
+    def parse_raw_comments(self, text: str):
         """extract raw comments from text"""
         soup = BeautifulSoup(text, "html.parser")
-        all_comments = soup.find_all("faceplate-tracker", {"data-testid": "search-comment"})
+        all_comments = soup.find_all("search-telemetry-tracker", {"view-events": "search/view/comment"})
 
         for comment in all_comments:
             comment_parsed = self.parse_comment(comment)
             if not comment_parsed:
+                return
+
+            if self.link_is_notified(comment_parsed["comment_link"]):
                 return
 
             self.new_comments.append(comment_parsed)
@@ -59,7 +62,7 @@ class CommentSearchScraper(Reddit):
         """extract comment fields from bs4 object"""
         author = comment.find("a", href=re.compile("/user/*"))
         if author:
-            author_name: str = author.text
+            author_name: str = author.text.strip()
             author_link: str | bool = self.BASE + author.get("href")
         else:
             author_name = "[deleted]"
@@ -68,22 +71,21 @@ class CommentSearchScraper(Reddit):
         if author_name == "AutoModerator":
             return None
 
-        title = comment.find("faceplate-tracker")
+        title = comment.find("h2").text.strip()
+        post_link = self.BASE + comment.find("a").get("href")
         time_stamp = datetime.fromisoformat(comment.find("faceplate-timeago").get("ts"))
-        time_stamp_text = time_stamp.replace(microsecond=0).isoformat(" ")
+        time_stamp_text = time_stamp.replace(microsecond=0, tzinfo=None).isoformat(" ")
         subreddit = comment.find("faceplate-hovercard").get("aria-label")
-        comment_link = self.BASE + [i for i in comment.find_all("a") if i.text == "Go To Thread"][0].get("href")
+        comment_link_rel = comment.find("a", {"aria-labelledby": re.compile("comment-content-[0-9a-z_]*")}).get("href")
+        comment_link = self.BASE + comment_link_rel
         comment_text = comment.find("span", id=re.compile("comment-content-[0-9]*")).text.strip()
-
-        if self.link_is_notified(comment_link):
-            return None
 
         comment_parsed: RedditComment = {
             "author_link": author_link,
             "author_name": author_name,
-            "post_title": title.text,
-            "post_link": self.BASE + title.find("a").get("href"),
-            "time_stamp": time_stamp,
+            "post_title": title,
+            "post_link": post_link,
+            "time_stamp": int(time_stamp.timestamp()),
             "time_stamp_text": time_stamp_text,
             "subreddit": subreddit,
             "comment_link": comment_link,
