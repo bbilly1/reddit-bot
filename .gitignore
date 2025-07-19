@@ -5,6 +5,7 @@ redditbot.env
 # dev
 __pycache__
 .vscode/
+.mypy_cache/
 
 # local db
 history.db
