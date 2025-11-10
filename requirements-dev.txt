@@ -1,6 +1,6 @@
 -r requirements.txt
-ipython==9.4.0
-pre-commit==4.2.0
-python-dotenv==1.1.1
+ipython==9.7.0
+pre-commit==4.4.0
+python-dotenv==1.2.1
 requirementscheck==0.1.0
-types-requests==2.32.4.20250611
+types-requests==2.32.4.20250913
