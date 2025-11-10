@@ -119,7 +119,7 @@ class Discord:
         """build author object from data"""
         author: DiscordAuthor = {
             "name": self.data["author_name"],
-            "url": self.data.get("author_link", False),
+            "url": self.data.get("author_link", None),
         }
 
         return author

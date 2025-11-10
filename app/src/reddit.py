@@ -60,13 +60,19 @@ class CommentSearchScraper(Reddit):
 
     def parse_comment(self, comment) -> RedditComment | None:
         """extract comment fields from bs4 object"""
-        author = comment.find("a", href=re.compile("/user/*"))
-        if author:
-            author_name: str = author.text.strip()
-            author_link: str | bool = self.BASE + author.get("href")
+        author_link = None
+        author_img = None
+
+        user_hover = comment.find("faceplate-hovercard", {"data-id": "user-hover-card"})
+        if user_hover:
+            author_name = user_hover.text.strip()
+            author_link = f"{self.BASE}/user/{author_name}"
+            if user_hover.find("img"):
+                author_img = user_hover.find("img")["src"]
+            elif user_hover.find("image"):
+                author_img = user_hover.find("image")["href"]
         else:
             author_name = "[deleted]"
-            author_link = False
 
         if author_name == "AutoModerator":
             return None
@@ -83,6 +89,7 @@ class CommentSearchScraper(Reddit):
         comment_parsed: RedditComment = {
             "author_link": author_link,
             "author_name": author_name,
+            "author_img": author_img,
             "post_title": title,
             "post_link": post_link,
             "time_stamp": int(time_stamp.timestamp()),

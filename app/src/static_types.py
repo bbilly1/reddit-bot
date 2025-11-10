@@ -8,8 +8,9 @@ from typing_extensions import NotRequired
 class RedditComment(TypedDict):
     """describes a reddit comment"""
 
-    author_link: str | bool
+    author_link: str | None
     author_name: str
+    author_img: str | None
     post_title: str
     post_link: str
     post_text: NotRequired[str]
