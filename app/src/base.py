@@ -169,7 +169,7 @@ class Discord:
 class Database:
     """handle all database actions"""
 
-    DB_FILE: str = "/data/history.db"
+    DB_FILE: str = environ.get("DB_FILE", "/data/history.db")
 
     def __init__(self):
         self.conn = sqlite3.connect(self.DB_FILE)
@@ -188,7 +188,10 @@ class Database:
         """
         self.execute(all_tables_query)
         all_tables: list = self.fetchall()
-        if not all_tables:
+        if all_tables:
+            # migrations
+            self.add_column_if_not_exists("comments", "author_img", "VARCHAR(255)")
+        else:
             print(f"[db] setup new database {self.DB_FILE}")
             self.setup()
 
@@ -200,6 +203,7 @@ class Database:
             CREATE TABLE comments (
                 author_link VARCHAR(255),
                 author_name VARCHAR(255),
+                author_img VARCHAR(255),
                 post_title text,
                 post_link text,
                 time_stamp integer,
@@ -223,6 +227,22 @@ class Database:
         """
         self.execute(comments_table)
         self.execute(posts_table)
+
+    def add_column_if_not_exists(self, table_name: str, column_name: str, column_type, default=None):
+        """add column if needed"""
+        self.execute(f"PRAGMA table_info({table_name});")
+        columns = [info[1] for info in self.cursor.fetchall()]
+
+        if column_name not in columns:
+            print(f"[db] adding column '{column_name}' to table '{table_name}'")
+            if default is not None:
+                self.cursor.execute(
+                    f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type} DEFAULT ?;", (default,)
+                )
+            else:
+                self.cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type};")
+        else:
+            print(f"[db] column '{column_name}' already exists in table '{table_name}', skipping.")
 
     def execute(self, to_execute: str, values: list | bool = False) -> None:
         """execute on the cursor"""
