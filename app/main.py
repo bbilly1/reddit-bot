@@ -14,7 +14,7 @@ from src.base import Database
 from src.reddit import CommentSearchScraper, ReditPost
 
 
-def setup_databasse() -> bool:
+def setup_database() -> bool:
     """setup empty database with tables"""
     db_handler = Database()
     first_setup: bool = db_handler.validate()
@@ -31,5 +31,5 @@ def get_new_comments(first_setup: bool) -> None:
 
 # entry point
 if __name__ == "__main__":
-    FIRST_SETUP: bool = setup_databasse()
+    FIRST_SETUP: bool = setup_database()
     get_new_comments(FIRST_SETUP)
