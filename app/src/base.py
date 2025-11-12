@@ -61,11 +61,12 @@ class Reddit:
     @staticmethod
     def insert_into(table: str, dictionary: RedditComment | RedditPost | dict):
         """build query"""
-        keys: str = ":" + ", :".join(dictionary)
-        to_execute: str = f"INSERT INTO {table} VALUES ({keys})"
+        keys = ", ".join(dictionary.keys())
+        placeholders = ", ".join([f":{k}" for k in dictionary.keys()])
+        to_execute = f"INSERT INTO {table} ({keys}) VALUES ({placeholders})"
 
         db_handler = Database()
-        db_handler.execute(to_execute, values=list(dictionary.values()))
+        db_handler.execute(to_execute, dict(dictionary))
         db_handler.finish()
 
     @staticmethod
@@ -241,10 +242,8 @@ class Database:
                 )
             else:
                 self.cursor.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type};")
-        else:
-            print(f"[db] column '{column_name}' already exists in table '{table_name}', skipping.")
 
-    def execute(self, to_execute: str, values: list | bool = False) -> None:
+    def execute(self, to_execute: str, values: list | dict | bool = False) -> None:
         """execute on the cursor"""
         if values:
             self.cursor.execute(to_execute, values)
